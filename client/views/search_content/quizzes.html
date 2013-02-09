@@ -1,0 +1,39 @@
+<template name="search_start_quizzes">
+	<div id="searchResultsContainer">
+
+		{{> search_controls}}
+		{{> start_cancel_search}}
+		
+	</div><!-- END SEARCH RESULTS CONTAINER    -->   
+</template>
+
+
+<template name="search_quizzes">
+	<div id="searchResultsContainer">
+		
+		{{> search_controls}}
+
+		<div id="quizSearch">
+	            <div id="quizSearchInner">
+
+	                {{> scroll_search_quizzes}}
+
+	            </div> <!-- END IMAGE SEARCH SCROLL INNER -->
+	     </div><!-- END IMAGE SEARCH -->
+	
+	</div><!-- END SEARCH RESULTS CONTAINER    -->   
+</template>
+
+
+
+<template name="scroll_search_quizzes">
+	{{#each search_results}}
+		{{> search_result_quiz}}
+	{{/each}}
+</template>
+
+<template name="search_result_quiz">
+	<div class="quizPageContainer">
+	    <img src="{{imgSrc}}" />
+	</div>
+</template>

@@ -1,0 +1,74 @@
+<template name="bottom">
+	<div id="bottom">
+
+		{{> keys}}
+		{{> carousel_cube}}
+		<div style="clear:both;"></div>
+		
+	</div><!-- END BOTTOM -->
+</template>
+
+<template name="keys">
+	<div id="keyContainer">
+		<div id="keyWebpages" class="active key touchable"></div>
+		<div id="keyImages" class="key touchable"></div>
+		<div id="keyVideos" class="key touchable"></div>
+		<div id="keyQuizzes" class="key touchable"></div>
+		<div style="clear:both;"></div>
+	</div>
+</template>
+
+<template name="carousel_cube">
+	<div id="carousel_cube" class="content_cube_container">  
+		  <div class="content_cube ">
+		    <div class="front">{{> carouselWebpages}}</div>
+			<div class="top">{{> carouselImages}}</div>
+		    <div class="back">{{> carouselVideos}}</div>
+		    <div class="bottom">{{> carouselQuizzes}}</div>
+		  </div>
+	</div>
+</template>
+
+<template name="carouselWebpages">
+	<div id="carouselWebpages" class="carousel">
+        <div class="carouselInner">
+			{{#each contentItems}}
+				{{> content_item}}
+			{{/each}}
+        </div>
+	</div>
+</template>
+
+<template name="carouselImages">
+	<div id="carouselImages" class="carousel">
+        <div class="carouselInner">
+			{{#each contentItems}}
+				{{> content_item}}
+			{{/each}}
+        </div>
+	</div>
+</template>
+
+<template name="carouselVideos">
+	<div id="carouselVideos" class="carousel">
+        <div class="carouselInner">
+			{{#each contentItems}}
+				{{> content_item}}
+			{{/each}}
+        </div>
+	</div>
+</template>
+
+<template name="carouselQuizzes">
+	<div id="carouselQuizzes" class="carousel">
+        <div class="carouselInner">
+			{{#each contentItems}}
+				{{> content_item}}
+			{{/each}}
+        </div>
+	</div>
+</template>
+
+<template name="content_item">
+	<img src="images/carouselImg.png" />
+</template>

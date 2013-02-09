@@ -1,0 +1,48 @@
+<template name="search_start_videos">
+	<div id="searchResultsContainer">
+
+		{{> search_controls}}
+		{{> start_cancel_search}}
+		
+	</div><!-- END SEARCH RESULTS CONTAINER    -->   
+</template>
+
+
+
+<template name="search_videos">
+	<div id="searchResultsContainer">
+		
+		{{> search_controls}}
+
+		<div id="videoSearch">
+	            <div id="videoSearchInner">
+
+	                {{> scroll_search_videos}}
+
+	            </div> <!-- END IMAGE SEARCH SCROLL INNER -->
+	     </div><!-- END IMAGE SEARCH -->
+	
+	</div><!-- END SEARCH RESULTS CONTAINER    -->   
+</template>
+
+
+
+<template name="scroll_search_videos">
+	{{#each search_results}}
+		{{> search_result_video}}
+	{{/each}}
+</template>
+
+
+
+<template name="search_result_video">
+	<div class="videoPageContainer">
+	    <img src="https://i3.ytimg.com/vi/{{videoId}}/mqdefault.jpg" />
+		<div class="videoInfoContainer">
+			<span class="videoViews"><span class="infoLabel">views:</span> {{videoViews}}</span> <br />
+			<span class="videoTime"><span class="infoLabel">length:</span> {{videoTime}}</span>
+		</div>
+		<div class="videoTitle">{{videoTitle}}</div>
+		<div class="videoDescription">{{videoDescription}}</div>
+	</div>
+</template>

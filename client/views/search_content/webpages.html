@@ -1,0 +1,48 @@
+<template name="search_start_webpages">
+	<div id="searchResultsContainer">
+
+		{{> search_controls}}
+		{{> start_cancel_search}}
+		
+	</div><!-- END SEARCH RESULTS CONTAINER    -->   
+</template>
+
+
+
+<template name="search_webpages">
+	<div id="searchResultsContainer">
+
+		{{> search_controls}}
+		
+		<div id="webScroll" class="searchScroll">
+	       	<div id="webScrollInner">
+
+				{{> scroll_search_webpages}}
+
+	        </div><!-- END WEB SCROLL INNER   -->
+		</div><!-- END WEB SCROLL    --> 
+	</div><!-- END SEARCH RESULTS CONTAINER    -->   
+</template>
+
+
+
+<template name="scroll_search_webpages">
+	{{#each search_results}}
+		{{> search_result_webpage}}
+	{{/each}}
+</template>
+
+
+
+<template name="search_result_webpage">
+	 <div class="textResultsBox touchable">
+            <div class="row">
+                <div class="webResults">
+                    <h1>{{title}}</h1>
+                    <h2>{{link}}</h2>
+                    <p>{{description}}</p>
+                </div>
+                <div class="arrow"></div>
+            </div>
+        </div>
+</template>

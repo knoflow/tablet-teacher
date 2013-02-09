@@ -1,0 +1,22 @@
+<template name="search_bar">
+	<div id="search">
+		{{> search_field}}
+		{{> search_tabs}}
+	</div><!-- END SEARCH -->
+</template>
+
+<template name="search_field">
+	<div id="searchField">
+		<input type="text" name="search" value="iron man" />
+	</div>
+</template>
+
+<template name="search_tabs">
+	<div id="searchTabContainer">
+		<div id="tabWeb"  class="searchTab">Web</div>
+		<div id="tabImages" class="searchTab">Images</div>
+		<div id="tabVideos" class="searchTab ">Videos</div>
+		<div id="tabQuizzes" class="searchTab">Quizzes</div>
+		<div style="clear:both;"></div>
+	</div>
+</template>

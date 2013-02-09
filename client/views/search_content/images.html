@@ -1,0 +1,40 @@
+<template name="search_start_images">
+	<div id="searchResultsContainer">
+
+		{{> search_controls}}
+		{{> start_cancel_search}}
+		
+	</div><!-- END SEARCH RESULTS CONTAINER    -->   
+</template>
+
+
+<template name="search_images">
+	<div id="searchResultsContainer">
+		
+		{{> search_controls}}
+
+		<div id="imageSearch">
+	            <div id="imageSearchInner">
+
+	                {{> scroll_search_images}}
+
+	            </div> <!-- END IMAGE SEARCH SCROLL INNER -->
+	     </div><!-- END IMAGE SEARCH -->
+	
+	</div><!-- END SEARCH RESULTS CONTAINER    -->   
+</template>
+
+
+<template name="scroll_search_images">
+	{{#each search_results}}
+		{{> search_result_image}}
+	{{/each}}
+</template>
+
+
+
+<template name="search_result_image">
+	<div class="imagePageContainer">
+	    <img src="{{imgSrc}}" origSrc="{{imgSrc}}" />
+	</div>
+</template>

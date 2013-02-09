@@ -1,0 +1,102 @@
+<template name="content_container">
+	<div id="contentContainer">
+
+			{{> content_cube_container}}
+			
+    </div><!-- END CONTENT CONTAINER -->
+</template>
+
+
+
+<template name="content_cube_container">
+	<div class="content_cube_container">  
+		  <div class="content_cube left_right">
+		    <div class="front"></div>
+			<div class="right"></div>
+		    <div class="back"></div>
+		    <div class="left"></div>
+		  </div>
+		
+		<div class="content_cube up_down">
+		    <div class="front"></div>
+			<div class="top"></div>
+		    <div class="back"></div>
+		    <div class="bottom"></div>
+		  </div>
+	</div>	
+	
+	<div id="pending_side" style="display:none;">
+		{{> selected_content}}
+	</div>	
+</template>
+
+
+<template name="selected_content">
+	<div id="selectedContentContainer">
+		<div class="selectedContent">
+			{{#if side 'loading'}}
+		    	{{> loading}}		
+			{{/if}}
+			
+			{{#if side 'graph_paper'}}
+		    	{{> graph_paper}}		
+			{{/if}}
+			
+			{{#if side 'iframe'}}
+		    	{{> iframe}}		
+			{{/if}}
+	
+			{{#if side 'search_start_webpages'}}
+				{{> search_start_webpages}}  
+			{{/if}}
+			
+			{{#if side 'search_start_images'}}
+				{{> search_start_images}}  
+			{{/if}}
+			
+			{{#if side 'search_start_videos'}}
+				{{> search_start_videos}}  
+			{{/if}}
+			
+			{{#if side 'search_start_quizzes'}}
+				{{> search_start_quizzes}}  
+			{{/if}}
+			
+			{{#if side 'search_webpages'}}
+				{{> search_webpages}}  
+			{{/if}}
+		
+			{{#if side 'search_images'}}
+				{{> search_images}}  
+			{{/if}}
+		
+			{{#if side 'search_videos'}}
+				{{> search_videos}}  
+			{{/if}}
+		
+			{{#if side 'search_quizzes'}}
+				{{> search_quizzes}}  
+			{{/if}}
+		</div><!-- END SELECTED CONTENT -->
+	 </div><!-- END SELECTED CONTENT CONTAINER -->
+</template>
+
+
+<template name="graph_paper">
+	<div class="graphPaper">
+	</div>
+</template>
+
+
+<template name="iframe">
+	<div id="iframeScroll">
+		<div class="iframeInner">
+            <iframe class="siteIframe" scrolling='no' src="{{src}}"></iframe>
+        </div>
+	</div>
+</template>
+
+
+
+
+

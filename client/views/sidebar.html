@@ -1,0 +1,141 @@
+<template name="sidebar">
+	<div id="sidebar">
+		{{> sidebar_tabs}}
+		
+        {{> desk_triangle}}
+        
+		{{> control_box}}
+	</div><!-- END SIDEBAR -->
+</template>
+
+<template name="sidebar_tabs">
+	<div id="sidebarTabContainer">
+		<div id="tabDesks" class="sidebarTab touchable active">Desks</div>
+		<div id="tabQuizzes" class="sidebarTab touchable">Quizzes</div>
+		<div id="tabGroups" class="sidebarTab touchable">Groups</div>
+		<div style="clear:both;"></div>
+	</div><!-- END SIDEBAR -->
+</template>
+
+
+<template name="desk_triangle">
+	<div id="deskContainerOuter">
+
+        <div id="desksTopBar"></div>
+        <div id="desksRightBar"></div>
+        <div id="desksBottomBar"></div>
+
+		{{> triangle_cube}}
+
+    </div><!-- END DESKC ONTAINER OUTER -->
+</template>
+
+<template name="triangle_cube">
+	<div id="triangle_cube" class="content_cube_container">  
+		  <div class="content_cube">
+			{{> misc_container}}
+		  </div>
+	</div>
+</template>
+
+<template name="misc_container">
+	{{> triangle_cube_sides}}
+</template>
+
+<template name="triangle_cube_sides">
+	<div class="front">{{> desks_side_desks}}</div>
+	<div class="left">{{> desks_side_quizzes}}</div>
+    <div class="right">{{> desks_side_groups}}</div>
+</template>
+
+<template name="desks_side_desks">
+	<div id="desksDesksScroll" class="deskContainer">
+        <div class="deskContainerInner">
+			
+			{{#each desks}}
+				{{> user_desk}}
+			{{/each}}
+
+        </div><!-- END DESK CONTAINER INNER -->
+	</div><!-- END DESK CONTAINER -->
+</template>
+
+<template name="desks_side_quizzes">
+	<div id="desksQuizzesScroll" class="deskContainer">
+        <div class="deskContainerInner">
+			
+			{{#each desks}}
+				{{> user_desk}}
+			{{/each}}
+			{{> user_desk}}
+        </div><!-- END DESK CONTAINER INNER -->
+	</div><!-- END DESK CONTAINER -->
+</template>
+
+<template name="desks_side_groups">
+	<div id="desksGroupsScroll" class="deskContainer">
+        <div class="deskContainerInner">
+			
+			{{#each desks}}
+				{{> user_desk}}
+			{{/each}}
+			{{> user_desk}}
+			{{> user_desk}}
+        </div><!-- END DESK CONTAINER INNER -->
+	</div><!-- END DESK CONTAINER -->
+</template>
+	
+
+
+<template name="user_desk">
+	<div class="desk touchable">
+		<div class="bulb {{status_class}}"></div>
+		
+		<div class="deskImgContainer">
+			<img src="images/stdntImg.png">
+		</div>
+		
+		<div class="deskInfoContainer">
+			<h1>{{name}}</h1>
+			<div class="deskStar">{{status}}</div> 
+			<div class="deskCheckmark">21</div>
+			<div style="clear:both;"></div>
+		</div>
+		
+		<div style="clear:both;"></div>
+	</div>
+</template>
+
+
+<template name="control_box">
+	<div id="controlBox">
+		<div id="controlBoxDesks" class="controlBox">
+	        <div class="controlBoxButton touchable BottomBorder active">SETTINGS</div>
+	        <div class="controlBoxButton touchable BottomBorder">SHARING</div>
+	        <div class="controlBoxButton touchable">CREATE QUESTION</div>
+	    </div>
+		<div id="controlBoxQuizzes" class="controlBox">
+	        <div class="controlBoxButton touchable BottomBorder active">QUIZ MODE A</div>
+	        <div class="controlBoxButton touchable BottomBorder">QUIZ MODE B</div>
+	        <div class="controlBoxButton touchable">QUIZ MODE C</div>
+	    </div>
+		<div id="controlBoxGroups" class="controlBox">
+	        <div class="controlBoxButton touchable BottomBorder active">GROUP BLA BLA</div>
+	        <div class="controlBoxButton touchable BottomBorder">YO YO GROUP</div>
+	        <div class="controlBoxButton touchable">GROUP SOMETHING</div>
+	    </div>
+	</div>
+    <div class="action_button_container">{{> action_button}}</div>
+</template>
+
+
+<template name="action_button">
+	<div class="content_cube_container">  
+		  <div class="content_cube ">
+		    <div class="front"><div id="inviteStudents" class="action_button" up="INVITE STUDENTS" down="INVITE" state="up"></div></div>
+			<div class="top"><div id="startQuiz" class="action_button" up="START QUIZ" down="STOP QUIZ" state="up"></div></div>
+		    <div class="back"><div id="groupTime" class="action_button" up="GROUP TIME" down="END" state="up"></div></div>
+		    <div class="bottom"><div id="empty" class="action_button"></div></div>
+		  </div>
+	</div>	
+</template>
