@@ -113,12 +113,13 @@ IframeCropper = Class.extend({
 		$img.bind(START_EV, function() {
 			var $newImg = $(this).clone(),
 				newId = 'cloned_'+$newImg.attr('id'),
-				left = $(this).offset().left,
-				top = $(this).offset().top;
+				left = $(this).offset().left + 1,
+				top = $(this).offset().top + 1;
 				
 			$newImg.attr('id', newId).css({
 				position: 'absolute',
 				height: $(this).css('height'),
+				width: $(this).css('width'),
 				zIndex: 999999
 			})
 			.hardwareCss('translate3d('+left+'px,'+top+'px,0px)')
