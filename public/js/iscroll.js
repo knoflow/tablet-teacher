@@ -427,6 +427,7 @@ iScroll.prototype = {
 
 		if (that.options.onBeforeScrollMove) that.options.onBeforeScrollMove.call(that, e);
 
+		
 		// Zoom
 		if (that.options.zoom && hasTouch && e.touches.length > 1) {
 			c1 = m.abs(e.touches[0].pageX - e.touches[1].pageX);
@@ -437,14 +438,14 @@ iScroll.prototype = {
 
 			scale = 1 / that.touchesDistStart * that.touchesDist * this.scale;
 
-			if (scale < that.options.zoomMin) scale = 0.5 * that.options.zoomMin * Math.pow(2.0, scale / that.options.zoomMin);
+			if (scale < that.options.zoomMin) scale = that.options.zoomMin; //0.5 * that.options.zoomMin * Math.pow(2.0, scale / that.options.zoomMin);
 			else if (scale > that.options.zoomMax) scale = 2.0 * that.options.zoomMax * Math.pow(0.5, that.options.zoomMax / scale);
 
 			that.lastScale = scale / this.scale;
 
 			newX = this.originX - this.originX * that.lastScale + this.x,
 			newY = this.originY - this.originY * that.lastScale + this.y;
-
+			
 			this.scroller.style[transform] = 'translate(' + newX + 'px,' + newY + 'px) scale(' + scale + ')' + translateZ;
 
 			if (that.options.onZoom) that.options.onZoom.call(that, e);
@@ -673,7 +674,8 @@ iScroll.prototype = {
 		}
 		
 		if (that.options.wheelAction == 'zoom') {
-			deltaScale = that.scale * Math.pow(2, 1/3 * (wheelDeltaY ? wheelDeltaY / Math.abs(wheelDeltaY) : 0));
+			wheelDeltaY *= 1/100;
+			deltaScale = that.scale * Math.pow(1.05, 1/4 * (wheelDeltaY ? wheelDeltaY / Math.abs(wheelDeltaY) : 0));
 			if (deltaScale < that.options.zoomMin) deltaScale = that.options.zoomMin;
 			if (deltaScale > that.options.zoomMax) deltaScale = that.options.zoomMax;
 			
@@ -681,7 +683,7 @@ iScroll.prototype = {
 				if (!that.wheelZoomCount && that.options.onZoomStart) that.options.onZoomStart.call(that, e);
 				that.wheelZoomCount++;
 				
-				that.zoom(e.pageX, e.pageY, deltaScale, 400);
+				that.zoom(e.pageX, e.pageY, deltaScale, 100);
 				
 				setTimeout(function() {
 					that.wheelZoomCount--;
@@ -1085,7 +1087,7 @@ iScroll.prototype = {
 		that.x = that.x > 0 ? 0 : that.x < that.maxScrollX ? that.maxScrollX : that.x;
 		that.y = that.y > that.minScrollY ? that.minScrollY : that.y < that.maxScrollY ? that.maxScrollY : that.y;
 
-		that.scroller.style[transitionDuration] = time + 'ms';
+		//that.scroller.style[transitionDuration] = time + 'ms';
 		that.scroller.style[transform] = 'translate(' + that.x + 'px,' + that.y + 'px) scale(' + scale + ')' + translateZ;
 		that.zoomed = false;
 	},
