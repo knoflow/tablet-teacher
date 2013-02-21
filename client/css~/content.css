@@ -1,0 +1,25 @@
+#contentContainer  {
+float: left;
+margin-left: 10px;
+position:relative;
+/*overflow:hidden; */
+z-index:2;
+}
+
+
+
+
+#mainDesk {
+overflowy: auto;;
+position:relative; height:100%; width: 100%;
+/**-webkit-overflow-scrolling:touch;**/
+}
+
+#mainDesk .mainDeskInner {
+white-space: nowrap;
+width:200%;
+height: 200%;
+position:absolute;
+z-index: 2;
+background:url('../../images/graphBg.png');
+}

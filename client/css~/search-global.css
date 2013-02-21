@@ -1,0 +1,105 @@
+#contentContainer #searchResultsContainer {
+background:url('../../images/BlackSearchBg.png');
+height:100%;
+width:100%;
+box-shadow: 0px 5px 10px black;
+}
+
+#contentContainer #searchResultsContainer .selector {
+background:url('../../images/selectorBG.png')no-repeat;
+width:203px;
+height:36px;
+position:relative;
+left:50%;
+margin-left:-104px;
+top: 10px;
+padding-top:3px;
+padding-left:4px;
+}
+#contentContainer #searchResultsContainer .leftSelector, .rightSelector {
+height:100%;
+font-family:"Myriad Pro", "Gill Sans", "Gill Sans MT";
+-webkit-font-smoothing:antialiased;
+text-shadow:1px 1px 0 rgba(0,0,0,0.1);
+font-weight:normal;
+color:#FFFFFF;
+font-size:12px;
+line-height:2.5;
+text-indent:15px;
+}
+#contentContainer #searchResultsContainer .leftSelector {
+background:url('../../images/leftButton.png')no-repeat;
+float:left;
+width: 50%;
+}
+
+#contentContainer #searchResultsContainer .rightSelector {
+background:url('../../images/rightButton.png')no-repeat;
+float:left;
+width: 50%;
+}
+
+#contentContainer #searchResultsContainer .leftSelector.active {
+background:url('../../images/leftHover.png')no-repeat;
+margin-top: -1px;
+}
+
+#contentContainer #searchResultsContainer .rightSelector.active {
+background:url('../../images/rightHover.png')no-repeat;
+margin-top: -1px;
+}
+
+#contentContainer .backx {
+background:url('../../images/window.png')no-repeat;
+height:23px;
+width:23px;
+position:absolute;
+top:10px;
+right:10px;
+z-index: 1001;
+}
+
+#contentContainer #searchResultsContainer .window {
+background:url('../../images/window.png')no-repeat;
+height:23px;
+width:23px;
+position:absolute;
+top:10px;
+right:10px;
+}
+
+.start_cancel_search {
+	display:inline-block;
+	position: absolute;
+	left: 50%;
+	margin-left: -89px;
+}
+.search_button {
+	font-family: "Myriad Pro", "Gill Sans", "Gill Sans MT";
+	-webkit-font-smoothing: antialiased;
+	text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
+	font-weight: normal;
+	color: white;
+	letter-spacing: 1pt;
+	word-spacing: 2pt;
+	font-size: 15px;
+	text-align: center;
+	line-height: 4.25;
+	position: relative;
+	z-index: 2;
+}
+
+.start_search {
+	background: url('../../images/startQuiz1.png')no-repeat;
+	box-shadow: inset 2px 2px 100px 6px rgba(0, 0, 0, 0.91);
+	width: 178px;
+	height: 62px;
+	float:left;
+}
+
+.cancel_search {
+	background: url('../../images/startQuiz1.png')no-repeat;
+	width: 178px;
+	height: 62px;
+	float:left;
+}
