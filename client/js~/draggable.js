@@ -31,7 +31,8 @@ Draggable = Class.extend({
 		//configuration options	
 		duration: 1000,
 		bounce: 0.75,
-		friction: .96
+		friction: .96,
+
 
 	},
 	
@@ -52,12 +53,12 @@ Draggable = Class.extend({
 
 	},
 	setupElement: function(element) {
-		if(this.element) this.tearDown();
-		
 
 		this.id = element;
 		this.element = $(element)[0];
 		this.element.addEventListener(START_EV, this, false);
+		
+		$(this.element).css('z-index', 999999);
 		
 		if(hasTouch) {
 		    this.element.addEventListener('gesturestart', this, false);
@@ -66,9 +67,7 @@ Draggable = Class.extend({
 		}
 
 	},
-	tearDown: function() {
-		this.element.removeEventListener(START_EV, this, false);
-	},
+
 	handleEvent: function(e) {    
 
 	    this.handleGesture(e);
@@ -126,13 +125,13 @@ Draggable = Class.extend({
 
         console.log(this.$stageContainer.width());
         
-        if(newWidth >= this.$stageContainer.width() * .5) {
-            newHeight = this.$stageContainer.width() * .5 * newHeight/newWidth;
-            newWidth = this.$stageContainer.width() * .5;
+        if(newWidth >= this.$stageContainer.width() * .75) { //change $stageContainer to $stage at some point
+            newHeight = this.$stageContainer.width() * .75 * newHeight/newWidth;
+            newWidth = this.$stageContainer.width() * .75;
         }       
-        else if(newHeight >= this.$stageContainer.height() * .5) {
-            newWidth = this.$stageContainer.height() * .5 * newWidth/newHeight;
-            newHeight = this.$stageContainer.height() * .5;
+        else if(newHeight >= this.$stageContainer.height() * .75) {
+            newWidth = this.$stageContainer.height() * .75 * newWidth/newHeight;
+            newHeight = this.$stageContainer.height() * .75;
         }
 
         
@@ -170,7 +169,7 @@ Draggable = Class.extend({
 	start: function(x, y) {
 	    console.log('start');
 	    this.mouseDownTime = Date.now();
-
+	    this.bringToFront();
 	    
 	    document.addEventListener(MOVE_EV, this, false);
 	    document.addEventListener(END_EV, this, false);
@@ -230,6 +229,12 @@ Draggable = Class.extend({
 			//get velocity
 			this.vx = this.velocityX();
 			this.vy = this.velocityY();
+			
+			//make elements first launched off carousel go extra fast
+			if(!this.addedToDesk) {
+			    this.vy = Math.max(3, Math.abs(this.vy)) * -1;
+			    console.log(this.vx, this.vy);
+			}
 
 			//setup for future gesture
 			this.mouseDownTime = null; 
@@ -249,7 +254,7 @@ Draggable = Class.extend({
 	render: function(time) {		
 	    var acc = this.acceleration(time, 0, 1, this.duration), //get percentage animation complete
 			dx = 600 * (50/this.width())  * this.vx * acc,
-			dy = 600 * (50/this.height()) * this.vy * acc;
+			dy = 600 * (50/this.height()) * this.vy * acc,
 			x = this.x + dx,
 			y = this.y + dy;
 		
@@ -307,6 +312,21 @@ Draggable = Class.extend({
 	    
          this.scrollToFront();         
 	},
+	bringToFront: function() {
+	    var highestZindex = 0,
+	        $images = $('.mainDeskInner img');
+	    if($images.length === 0) {
+	        highestZindex = 100;
+	    }
+	    else {
+	        $images.each(function() {
+
+                if($(this).css('z-index') > highestZindex) highestZindex = $(this).css('z-index');
+            });	  
+	    }
+        
+        $(this.element).css('z-index', ++highestZindex);  
+	},
 	scrollToFront: function() {
 	    //carousels[0].scrollTo(0,0,200);
 	    
@@ -325,11 +345,17 @@ Draggable = Class.extend({
 	stageHeight: function() {
 	    return this.$stageContainer.height();    
 	},
+	widthRotated: function() {
+	    return this.cosWidth() + this.sinHeight(); 
+	},
+	heightRotated: function() {
+	    return this.cosHeight() + this.sinWidth(); 
+	},
 	width: function() {
 	    return $(this.element).width();    
 	},
 	height: function() {
-	    return $(this.element).height();    
+	    return $(this.element).height();
 	},
 
 	acceleration: function() {
@@ -346,7 +372,7 @@ Draggable = Class.extend({
 	},
 	startDistanceFromSideX: function(x) {
 	    var cursorX = x,
-	        elementX = $(this.element).offset().left - this.$stage.offset().left + this.rotationFactorX(),
+	        elementX = $(this.element).offset().left - this.$stage.offset().left + this.rotationFactorX()/2,
 	        diffX = cursorX - elementX;
 
 	    return diffX;
@@ -354,32 +380,32 @@ Draggable = Class.extend({
 	startDistanceFromSideY: function(y) {
         var cursorY = y,
 
-	        elementY = $(this.element).offset().top - this.$stage.offset().top + this.rotationFactorY(),
+	        elementY = $(this.element).offset().top - this.$stage.offset().top + this.rotationFactorY()/2,
 	        diffY = cursorY - elementY;
 	    
 	    return diffY;
 
 	},
 	cosWidth: function() {
-	    return Math.abs(Math.cos(this.degrees/180*Math.PI)) * this.width()/2;     
+	    return Math.abs(Math.cos(this.degrees/180*Math.PI)) * this.width();     
 	},
 	sinHeight: function() {
-	    return Math.abs(Math.sin(this.degrees/180*Math.PI)) * this.height()/2;     
+	    return Math.abs(Math.sin(this.degrees/180*Math.PI)) * this.height();     
 	},
 	sinWidth: function() {
-	    return Math.abs(Math.sin(this.degrees/180*Math.PI)) * this.width()/2;     
+	    return Math.abs(Math.sin(this.degrees/180*Math.PI)) * this.width();     
 	},
 	cosHeight: function() {
-	    return Math.abs(Math.cos(this.degrees/180*Math.PI)) * this.height()/2;     
+	    return Math.abs(Math.cos(this.degrees/180*Math.PI)) * this.height();     
 	},
     rotationFactorX: function() {
         var a = this.cosWidth() + this.sinHeight(); 
-        return (this.width()/2 - a) * -1 * this.deskScale();
+        return (this.width() - a) * -1 * this.deskScale();
 
     },
     rotationFactorY: function() {        
         var b = this.cosHeight() + this.sinWidth(); 
-        return (this.height()/2 - b) * -1 * this.deskScale();  
+        return (this.height() - b) * -1 * this.deskScale();  
     },
 	velocityX: function() {
 	    return (this.x - this.lastPivotX) / (Date.now() - this.lastPivotTimeX);  
@@ -390,7 +416,7 @@ Draggable = Class.extend({
 	moveHitWallsX: function(x) {       
         if (x > this.widthMax()) return this.widthMax(); 
           
-	    if (x < this.widthMin()) return this. widthMin();
+	    if (x < this.widthMin()) return this.widthMin();
 	        
         return x;
 	},
@@ -438,30 +464,45 @@ Draggable = Class.extend({
 		return y;		
 	},
 	widthMax: function() {
-	    var widthMax = this.$stageContainer.width() - this.$stage.offset().left + this.$stageContainer.offset().left;
-	    widthMax *= 1/this.deskScale();
-	    widthMax -= this.width(); 
-	    
-
-	    if(!this.addedToDesk) widthMax -= 10;
-	    
-	    return widthMax;
+        if(!this.addedToDesk) {
+	        var widthMax = this.$stageContainer.width() - this.$stage.offset().left + this.$stageContainer.offset().left;
+	        widthMax *= 1/this.deskScale();
+	        widthMax -= this.width(); 
+	        widthMax -= 10;
+	        return widthMax;
+	    }
+	    else {
+	        //this is annoying, but basically, the width of the block is 
+	        //considered to be half cos/sin style rotated + half regular width. 
+	        return this.$stage.width() - (this.width()/2 + this.widthRotated()/2);    
+	    }
 	},
 	widthMin: function() {
 	    if(!this.addedToDesk) return 193;
+	    return 0 + (this.widthRotated()/2 - this.width()/2); //cos/sign style + regular width
+	    
+	    //deprecated bounce off $stageContainer, except for before attachment to desk
 	    return (this.$stageContainer.offset().left - this.$stage.offset().left)*1/this.deskScale();
 	},
 	heightMax: function() {
-	    var heightMax = this.$stageContainer.height() - this.$stage.offset().top + this.$stageContainer.offset().top;
-	    heightMax *= 1/this.deskScale();
-	    heightMax -= this.height();
-	    
-	    if(!this.addedToDesk) heightMax -= this.bottomLine;
-	    
-	    return heightMax;
+	    if(!this.addedToDesk) {
+	        var heightMax = this.$stageContainer.height() - this.$stage.offset().top + this.$stageContainer.offset().top;
+	        heightMax *= 1/this.deskScale();
+	        heightMax -= this.height();
+	        heightMax -= this.bottomLine;
+	        return heightMax;
+	    }
+	    else {
+	        //this is annoying, but basically, the width of the block is 
+	        //considered to be half cos/sin style rotated + half regular width. 
+	        return this.$stage.height() - (this.height()/2 + this.heightRotated()/2);    
+	    }
 	},
 	heightMin: function() {
 	    if(!this.addedToDesk) return 46;
+	    return 0 + (this.heightRotated()/2 - this.height()/2); //cos/sign style + regular width
+	    
+	    //deprecated bounce off $stageContainer, except for before attachment to desk
 	    return (this.$stageContainer.offset().top - this.$stage.offset().top)*1/this.deskScale();
 	},
 	setCrossedBottomLine: function(y) {
@@ -573,9 +614,9 @@ prepareCarouselImageForDragging = function() {
                 deltaY = Math.abs(y - lastY),
                 moved = false;
 	    
-	        console.log(deltaX, deltaY);
-	        if(mouseDown && deltaX > deltaY && deltaX > 5) isScrolling = true;
-	        if (mouseDown && !moved && deltaY > deltaX && deltaY > 5) {
+
+	        if(mouseDown && deltaX > deltaY && deltaX > 4) isScrolling = true;
+	        if (mouseDown && !moved && deltaY > deltaX && deltaY > 4) {
 	            moved = true;
 	            isDragging = true;
 	            setupDraggable.call(this, e);    
