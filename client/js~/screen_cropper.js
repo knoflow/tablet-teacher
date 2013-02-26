@@ -3,6 +3,7 @@ ScreenCropper = Class.extend({
 		this.socket = io.connect("http://sheltered-sierra-1610.herokuapp.com:80/request");
 	},
 	preloadUrlAndHeight: function(url, callback) {
+		this.url = url;
 		var urlKey = this.createUrlKey(url);
 		this.socket.emit('preload', url, urlKey);
 		this.socket.on('urlKey_'+urlKey, callback)
@@ -35,8 +36,10 @@ ScreenCropper = Class.extend({
 		}
 	},
 	setPhantomPageConfig: function(jCropCoords) {
-		this.phantomPageConfig.clipRect.left = Math.round(jCropCoords.x);
-		this.phantomPageConfig.clipRect.top = Math.round(jCropCoords.y + -1*($('.iframeInner').offset().top - 46)); //scroll included
+		this.url = $('.siteIframe').attr('src');
+		
+		this.phantomPageConfig.clipRect.left = Math.round(jCropCoords.x) - parseInt($('.siteIframe').css('margin-left')); //margin-left from centered images
+		this.phantomPageConfig.clipRect.top = Math.round(jCropCoords.y) + -1*($('.iframeInner').offset().top - 46); //scroll included
 		this.phantomPageConfig.clipRect.width = Math.round(jCropCoords.w);
 		this.phantomPageConfig.clipRect.height = Math.round(jCropCoords.h);
 		
@@ -54,7 +57,7 @@ ScreenCropper = Class.extend({
 		
 		if(imageName.substr(-1) == '-') imageName = imageName.substr(0, imageName.length - 1);
 		
-		imageName = imageName.replace('(', '').replace(')', '').replace(':', '').replace('?', '').replace('=', '').replace('~','');
+		imageName = imageName.replace('(', '').replace(')', '').replace(':', '').replace('?', '').replace('=', '').replace('~','').replace('.', '_');
 		
 		return imageName;
 	},

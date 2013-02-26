@@ -14,4 +14,7 @@
     rsvps: Array of objects like {user: userId, rsvp: "yes"} (or "no"/"maybe")
 */
 Desks = new Meteor.Collection('desks');
+Slides = new Meteor.Collection('slides');
+LiveSlides = new Meteor.Collection('liveSlides');
+
 var AWAY = 1, IDLE = 2, ACTIVE = 3, SOLOED = 4;

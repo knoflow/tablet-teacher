@@ -39,9 +39,10 @@ Draggable = Class.extend({
 	/**
 	SETUP METHODS
 	**/
-	init: function(element, stage, e) {
+	init: function(element, stage, originalID, e) {
 		for(prop in this.defaults) this[prop] = this.defaults[prop];
 		
+		this.originalID = originalID;
 		this.setupStage(stage);
 		this.setupElement(element);
 		
@@ -54,16 +55,16 @@ Draggable = Class.extend({
 	},
 	setupElement: function(element) {
 
-		this.id = element;
-		this.element = $(element)[0];
-		this.element.addEventListener(START_EV, this, false);
-		
+		this.element = element;
 		$(this.element).css('z-index', 999999);
 		
+		var element = $(element)[0];
+		element.addEventListener(START_EV, this, false);
+		
 		if(hasTouch) {
-		    this.element.addEventListener('gesturestart', this, false);
-		    this.element.addEventListener('gesturechange', this, false);
-		    this.element.addEventListener('gestureend', this, false);    
+		    element.addEventListener('gesturestart', this, false);
+		    element.addEventListener('gesturechange', this, false);
+		    element.addEventListener('gestureend', this, false);    
 		}
 
 	},
@@ -295,21 +296,28 @@ Draggable = Class.extend({
         }
 	},
 	addToDesk: function() {
-	    var x = ($(this.element).offset().left - $('.mainDeskInner').offset().left) * (1/this.deskScale()),
+		//adjust the x/y coordinates so the element appears at the same position but on the desk
+	    var _this = this,
+			x = ($(this.element).offset().left - $('.mainDeskInner').offset().left) * (1/this.deskScale()),
 	        y = ($(this.element).offset().top - $('.mainDeskInner').offset().top)  * (1/this.deskScale());
-	                
-	     this.updateCss(x, y);  
-	              
-	     $(this.element).css({ //make element normal size again since zoomed desk is now in charge of its size
-	         width: $(this.element).width() * 1/this.deskScale(),    
-	         height: $(this.element).height() * 1/this.deskScale(),
-	     })
-	     .prependTo('.mainDeskInner'); 
-	        
+	     
+	
+  	 	var slide = Slides.findOne({src: $(_this.element).attr('src')});
+		
+		//make element normal size again since zoomed desk is now in charge of its size
+		slide.width = $(_this.element).width() * 1/_this.deskScale();
+		slide.height = $(_this.element).height() * 1/_this.deskScale();
+		slide.transform = prefixCSSstyle('transform', _this.getNewCss(x, y));
+		slide.zIndex = 1000;
+		slide.id = $(_this.element).attr('id');
+		delete slide._id;
+		
+		$(this.element).remove();		
+		LiveSlides.insert(slide);
+
 	     this.$stage = $('.mainDeskInner');
 	     this.$stageContainer = $('#contentContainer');
-
-	    
+   
          this.scrollToFront();         
 	},
 	bringToFront: function() {
@@ -330,14 +338,17 @@ Draggable = Class.extend({
 	scrollToFront: function() {
 	    //carousels[0].scrollTo(0,0,200);
 	    
-	    $(this.id.replace('cloned_', '')).show();
+	    $('#'+this.originalID).show();
 		setTimeout(function() {
-		    carousels[0].refresh();    
+		    carousels[slideTypeIndex()].refresh();    
 		}.bind(this), 0);   
 	},
 	deskScale: function() {
 	    if(!this.addedToDesk) return 1;
-	    return mainDesk.scale;    
+	    return this.mainDesk().scale;    
+	},
+	mainDesk: function() {
+		return mainDesk;
 	},
 	stageWidth: function() {
 	    return this.$stageContainer.width();    
@@ -510,8 +521,11 @@ Draggable = Class.extend({
 	    if(y < this.stageHeight() - this.height() - 96) {
 	        this.bottomLine = 96; 
 
-	        carousels[0].refresh();    
+	        carousels[slideTypeIndex()].refresh();    
 	    }    
+	},
+	getNewCss: function(x, y) {
+		return'translate3d(' + x + 'px,' + y + 'px, 0) rotate('+this.degrees+'deg)';
 	},
 	updateCss: function(x, y) {  
 		$(this.element).hardwareCss('translate3d(' + x + 'px,' + y + 'px, 0) rotate('+this.degrees+'deg)');
@@ -557,78 +571,3 @@ Draggable = Class.extend({
         }.bind(this), 0);
 	}
 });
-
-
-
-prepareCarouselImageForDragging = function() {	
-    var lastX, 
-        lastY,
-        mouseDown = false,
-        isScrolling = false,
-        isDragging = false,
-
-
-        setupDraggable = function(e) {
-
-            var left = $(this).offset().left + 1,
-			    top = $(this).offset().top + 1,
-			    scale = $(this).attr('scale') || 2,
-			    newID = 'cloned_'+$(this).attr('id');
-			
-		    $(this).clone().css({
-			    position: 'absolute',
-			    height: $(this).height() * scale * mainDesk.scale,
-			    width: $(this).width() * scale * mainDesk.scale,
-			    zIndex: 999999
-		    })
-    		.attr('id', newID)
-    		.hardwareCss('translate3d('+left+'px,'+top+'px,0px)')
-    		.prependTo('body');
-    
-            $(this).hide().appendTo('.carouselInner');
-            carousels[0].refresh();
-    		
-    		
-    		DR = new Draggable('#'+newID, 'body', e.originalEvent);    
-        };
-        
-    $('.carouselInner img').bind(START_EV, function(e) {
-        lastX = getPageX(e);
-        lastY = getPageY(e);
-        mouseDown = true;
-    });
-    $('body').bind(END_EV, function() {
-        mouseDown = false;    
-        isScrolling = false;
-        isDragging = false;
-    });
-    
-	$('.carouselInner img').each(function() {
-
-	    $(this).bind(MOVE_EV, function(e) {
-            if(isScrolling || isDragging) return;
-            
-	        var x = getPageX(e),
-                y = getPageY(e),
-                deltaX = Math.abs(x - lastX),
-                deltaY = Math.abs(y - lastY),
-                moved = false;
-	    
-
-	        if(mouseDown && deltaX > deltaY && deltaX > 4) isScrolling = true;
-	        if (mouseDown && !moved && deltaY > deltaX && deltaY > 4) {
-	            moved = true;
-	            isDragging = true;
-	            setupDraggable.call(this, e);    
-            }
-	    });    
-	});
-}
-
-$(function() {
-	setTimeout(function() {
-		console.log('draggable ready!');
-	    prepareCarouselImageForDragging();
-	}, 3000);
-});
-

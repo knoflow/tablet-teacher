@@ -1,6 +1,14 @@
 Meteor.publish('desks', function () {
     return Desks.find();
-  });
+});
+
+Meteor.publish('slides', function () {
+    return Slides.find();
+});
+
+Meteor.publish('liveSlides', function () {
+    return LiveSlides.find();
+});
 
 
 Meteor.methods({

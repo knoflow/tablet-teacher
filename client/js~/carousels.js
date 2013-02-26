@@ -1,5 +1,3 @@
-var carouselIndex = 0;
-
 var mainDesk;
 
 /**
@@ -63,7 +61,7 @@ function setupWebpagesScroll(cubeFlipCallback) {
 		$(this).css('color', colors[index % 4]);
 	});
 	
-	cubeFlipCallback.call(cubeFlipCallback);
+	cubeFlipCallback.call();
 }
 
 function setupImageScroll(cubeFlipCallback) {
@@ -83,7 +81,7 @@ function setupImageScroll(cubeFlipCallback) {
 			}
 		});
 		
-		cubeFlipCallback.call(cubeFlipCallback);
+		cubeFlipCallback.call();
 	});
 }
 
@@ -95,6 +93,6 @@ function setupVideoScroll(cubeFlipCallback) {
 
 		videoScroll = newScroll('videoSearch', {hScroll: true, snap: 'p'});
 		
-		cubeFlipCallback.call(cubeFlipCallback);
+		cubeFlipCallback.call();
 	});
 }

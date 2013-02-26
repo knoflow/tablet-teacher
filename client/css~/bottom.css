@@ -87,18 +87,42 @@ height: 75px;
 border: 1px solid black;
 }
 
-#bottom .carousel div.tmp_loading_div {
-width: 200px;
-height: 75px;
-float: left;
-background: url(../../images/DarkBg.png);
-border: 1px solid black;
-text-align: center;
-line-height: 5;
-text-shadow: 1px 1px #373636;
-color: white;
-margin-left:5px;
-overflow: hidden;
+.iframe_holder {
+position: absolute; overflow: hidden;
+float: left; margin-left:5px;
+
+background: url(../../images/DarkBg.png); border: 1px solid black;
+color: white; line-height: 5; text-align: center; text-shadow: 1px 1px #373636;
 }
 
+
+/** mini slide in carousel temporary iframe **/
+.iframe_holder {
+	overflow: hidden; 
+	position: relative;
+	border: 1px solid black;
+}
+
+.iframe_cover {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 99;
+}
+
+.iframe_slide {
+	display: block;
+	position: relative;
+	border: none;
+}
+
+.draggable {
+	position: absolute; 
+}
+
+.iframe_holder_draggable {
+	position: absolute;
+	border: none;
+	overflow:hidden;
+}
 /** BOTTOM END **/

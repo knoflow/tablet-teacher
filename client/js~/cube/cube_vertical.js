@@ -32,7 +32,7 @@ VCube = ParentCube.extend({
 					return 'back';
 				case 'back':
 					return 'bottom';
-				case 'bottom':
+				default: // 'bottom':
 					return 'front';
 			}
 		}
@@ -44,7 +44,7 @@ VCube = ParentCube.extend({
 					return 'back';
 				case 'back':
 					return 'top';
-				case 'top':
+				default: // 'top':
 					return 'front';
 			}
 		}

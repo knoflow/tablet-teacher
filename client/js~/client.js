@@ -1,16 +1,11 @@
-Meteor.startup(function () {	
-	Meteor.autosubscribe(function() {
-		Meteor.subscribe('desks');
-	});
-	
-	prepareDesk();
+var Cube;
 
+Meteor.startup(function () {
 	//prevent touch events from causing the typical crummy safari scroll of the entire web page
     document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
 
-	resizeable = new Resizeable;	
 	
-	Cube = new CubeController(new HCube, new VCube);
+	resizeable = new Resizeable;	
 	
 	deskTabs = new DeskTabs;
 	actionButton = new ActionButton;	
@@ -25,6 +20,19 @@ Meteor.startup(function () {
 	
 	iframeCropper = new IframeCropper;
 	croppedIframe = new CroppedIframe;
+	iframeScrollbars = new IframeScrollbars;
+	
+	Meteor.autosubscribe(function() {
+		Meteor.subscribe('desks');
+		Meteor.subscribe('slides');
+		Meteor.subscribe('liveSlides');
+	});
+	
+	prepareDesk();
+
+	$('.backx').live(START_EV, backButton);
+	
+
 });
 
 

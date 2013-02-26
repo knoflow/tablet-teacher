@@ -1,6 +1,6 @@
 Searcher = Class.extend({
 	init: function(useSocket) { 
-		if(useSocket) this.socket = io.connect("http://sheltered-sierra-1610.herokuapp.com:80/search");
+		//if(useSocket) this.socket = io.connect("http://sheltered-sierra-1610.herokuapp.com:80/search");
 	},
 	performSearch: function(searchType, keywords) {				
 		if(this.socket) return this.performSocketSearch(searchType, keywords);

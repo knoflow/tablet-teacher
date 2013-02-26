@@ -10,7 +10,7 @@ Resizeable = Class.extend({
 	resizeAllElements: function() {
 		var width = $(window).width(), 
 			height = $(window).height();
-			
+		
 		for (var resizeFunc in this.elements) {
 			this.elements[resizeFunc].call(this, width, height);
 		}

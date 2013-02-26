@@ -76,11 +76,17 @@ cancelFrame = (function () {
 // Helpers
 translateZ = has3d ? ' translateZ(0)' : '';
 
-function prefixStyle (style) {
+function prefixStyle(style) {
     if ( vendor === '' ) return style;
 
 	style = style.charAt(0).toUpperCase() + style.substr(1);
 	return vendor + style;
+}
+
+function prefixCSSstyle(style, value) {
+    if ( vendor === '' ) return style;
+
+	return '-'+vendor+'-' + style +': '+value+';';
 }
 
 dummyStyle = null;	// for the sake of it

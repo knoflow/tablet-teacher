@@ -1,9 +1,21 @@
 function backButton() {
 	Session.set('cube_flip_direction', Session.get('cube_flip_direction') == 'left' ? 'right' : 'left');
-	Session.set('side', 'search_start_'+Session.get('search_type'));
+
+	if(Session.get('side') == 'iframe') {
+		Session.set('side', 'search_'+Session.get('search_type'));
+	}
+	else if(Session.get('side').indexOf('search_start_') === 0) {
+		Session.set('side', 'graph_paper');
+	}
+	else {
+		Session.set('side', 'search_start_'+Session.get('search_type'));
+	}
+	
+	
+	//set rotation direction back to the original direction after back rotation is finished
 	setTimeout(function() {
 		Session.set('cube_flip_direction', Session.get('cube_flip_direction') == 'left' ? 'right' : 'left');
-	}, 2000); //set rotation direction back to the original direction after back rotation is finished
+	}, 2000); 
 }
 
 Template.search_controls.events({
@@ -11,10 +23,7 @@ Template.search_controls.events({
 		var _this = event.currentTarget;
 		$(_this).siblings().removeClass('active');
 		$(_this).addClass('active');
-	},
-	'click .backx': function(event) {
-		backButton();
-	},
+	}
 });
 
 Template.search_controls.rendered = function() {
@@ -37,28 +46,16 @@ Template.start_cancel_search.rendered = function() {
 	});
 };
 
-Template.loading.rendered = function() {
+Template.loading.trueRendered = function(callback) {
 	//start loading css3 animation
 	$('.bar').addClass('barAnimation');
 	loadingInterval = setInterval(function() {
 		$('.bar').removeClass('barAnimation');
 		setTimeout(function() {$('.bar').addClass('barAnimation');}, 0);
 	}, 6000);
-	
-	Cube.rotate(Session.get('cube_flip_direction'), '.selectedContent');
-	
-	console.log('loading rendered');
-}
 
-Template.search_result_webpage.events({
-	'click .textResultsBox .arrow': function(event) {
-		var _this = event.currentTarget;
-		
-		Session.set('cube_flip_direction', 'left');
-		Session.set('iframeSrc', $(_this).parent().find('h2').text());
-		Session.set('side', 'iframe');
-	}
-});
+	callback.call();
+}
 
 
 

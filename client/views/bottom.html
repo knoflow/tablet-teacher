@@ -32,31 +32,9 @@
 <template name="carouselWebpages">
 	<div id="carouselWebpages" class="carousel">
         <div class="carouselInner">
-			<img src="images/webKeyPrssd.png" id="sdf1" />
-			<img src="images/writeKeyPrssd.png" id="sdf2" />
-			<img src="images/carouselImg.png" id="sdf3" />
-			<img src="images/keyWeb.png" id="sdf4" />
-			<img src="images/imageKeyPrssd.png" id="sdf5" />
-			<img src="images/writeKeyPrssd.png" id="sdf6" />
-			<img src="images/keyQuiz.png" id="sdf" />
-			<img src="images/videoKeyPrssd.png" id="sdf7" />
-			<img src="images/carouselImg.png" id="sdf8" />
-			<img src="images/srchTabPrssd.png" id="sdf9" />
-			<img src="images/startQuizPrssd.png" id="sdf10" />
-			<img src="images/writeKeyPrssd.png" id="sdf11" />
-			<img src="images/webKeyPrssd.png" id="sdf12" />
-			<img src="images/writeKeyPrssd.png" id="sdf13" />
-			<img src="images/carouselImg.png" id="sdf14" />
-			<img src="images/keyWeb.png" id="sdf15" />
-			<img src="images/imageKeyPrssd.png" id="sdf16" />
-			<img src="images/writeKeyPrssd.png" id="sdf17" />
-			<img src="images/keyQuiz.png" id="sdf18" />
-			<img src="images/videoKeyPrssd.png" id="sdf19" />
-			<img src="images/carouselImg.png" id="sdf20" />
-			<img src="images/srchTabPrssd.png" id="sdf21" />
-			<img src="images/startQuizPrssd.png" id="sdf22" />
-			<img src="images/writeKeyPrssd.png" id="sdf23" />
-			
+			{{#each slides}}
+				{{> slide}}
+			{{/each}}
         </div>
 	</div>
 </template>
@@ -64,8 +42,8 @@
 <template name="carouselImages">
 	<div id="carouselImages" class="carousel">
         <div class="carouselInner">
-			{{#each contentItems}}
-				{{> content_item}}
+			{{#each slides}}
+				{{> slide}}
 			{{/each}}
         </div>
 	</div>
@@ -74,8 +52,8 @@
 <template name="carouselVideos">
 	<div id="carouselVideos" class="carousel">
         <div class="carouselInner">
-			{{#each contentItems}}
-				{{> content_item}}
+			{{#each slides}}
+				{{> slide}}
 			{{/each}}
         </div>
 	</div>
@@ -84,13 +62,33 @@
 <template name="carouselQuizzes">
 	<div id="carouselQuizzes" class="carousel">
         <div class="carouselInner">
-			{{#each contentItems}}
-				{{> content_item}}
+			{{#each slides}}
+				{{> slide}}
 			{{/each}}
         </div>
 	</div>
 </template>
 
-<template name="content_item">
-	<img src="images/carouselImg.png" />
+
+<template name="slide">
+	{{#if src}}
+    	<img id="{{id}}" src="{{src}}" style="width:{{adjusted_width}}px; height:75px;" />
+	{{else}}
+		<div id="{{id}}" class="iframe_holder" style="width:{{adjusted_width}}px; height:75px;">
+			<div class="iframe_cover"></div>
+			<iframe class="iframe_slide" src="{{url}}" scrolling="no" style="left:-{{iframe_left}}px; top:-{{iframe_top}}px; width:{{iframe_width}}px; height:{{iframe_height}}px; {{scale_transform}}"></iframe>
+		</div>
+	{{/if}}
 </template>
+
+<template name="draggable">
+	{{#if src}}
+    	<img id="{{id}}" class="draggable" src="{{src}}" style="width:{{width}}px; height:{{height}}px;  z-index: {{zIndex}};  {{transform}}">
+	{{else}}
+		<div id="{{id}}" class="iframe_holder_draggable" style="width:{{width}}px; height: {{height}}px; z-index:{{zIndex}}; {{transform}}">
+			<div class="iframe_cover"></div>
+			<iframe class="iframe_slide" src="{{url}}" scrolling="no" style="left:-{{left}}px; top:-{{top}}px; width:{{viewport_width}}px; height:{{viewport_height}}px;"></iframe>
+		</div>
+	{{/if}}
+</template>
+

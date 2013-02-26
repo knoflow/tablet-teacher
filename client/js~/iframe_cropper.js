@@ -1,20 +1,13 @@
 IframeCropper = Class.extend({
 	init:function() {
 		
-	},
-	
-	
+	},	
 	//main entry point method
-	prepareNewIframe: function(callback) {
-		this.setupBackButton();		
+	prepareNewIframe: function(callback) {	
 		this.setupJcrop();
-		this.prepareIframeScrollbars();
-		
-		callback.call();
-	},
-	setupBackButton: function() {
-		$('.jcrop-holder').prepend('<div class="backx"></div>');
-		$('.backx').click(backButton);
+		if(!Session.get('isImage')) iframeScrollbars.setup();
+
+		if(callback) callback.call();
 	},
 	setupJcrop: function() {
 		var _this = this;
@@ -33,164 +26,45 @@ IframeCropper = Class.extend({
 	
 	//secondary entry point method
 	crop: function(coords) {
-		var _this = this;
+		//extract coordinates from jCrop		
+		screenCropper.setPhantomPageConfig(coords); 
 		
-		//extract coordinates from jCrop
-		screenCropper.setPhantomPageConfig(coords);
+		//get unique image				
+		this.imageNameNOpng = screenCropper.imageNameNOpng(); 
 		
-		//prepare imageName and carousel to put content into
-		this.imageName = screenCropper.createImageName();
-		this.imageNameNOpng = screenCropper.imageNameNOpng();
-		this.carouselIndex = this.currentCarouselIndex();
+		//add temp slide 
+		this.addSlide(); 
 		
-		//add temp content
-		var interval = this.addTempImageToCarousel(coords);
-		this.displayTempIframeOnDesk();
+		//crop via phantomjs
+		screenCropper.crop(function(imgSrc, imageName) {			
+			this.updateSlide(imgSrc); //update temp slide with image	
+		}.bind(this));
+	},
 		
-		//utilize our server side phantomjs-powered screenCropper uility and add the clipping to current carousel
-		screenCropper.crop(function(imgSrc, imageName) {
-			var imageNameNOpng = imageName.replace('.png', '');
+	addSlide: function(coords) {
+		Slides.insert({
+			id: this.imageNameNOpng,
+			url: $('.siteIframe').attr('src'),
+			time: Date.now(),
+			type: slideType(),
 			
-			_this.replaceCroppedIframeWithActualImage(imgSrc, imageNameNOpng);
-			var $img = _this.addCroppedImageToCarousel(imgSrc, imageNameNOpng, interval);				
-			_this.prepareCarouselImageForDragging($img);
-		});
-	},
-	
-	
-	//add temporary content before cropped image is ready
-	addTempImageToCarousel: function(coords) {
-		var carouselIndex = this.carouselIndex,
-			width = 75*(coords.w/coords.h),
-			$tmpDiv = $('<div />', { 
-				id: 'temp_loading_'+this.imageNameNOpng,
-				class: 'tmp_loading_div',
-				imageWidth: coords.w,
-				imageHeight:  coords.h,
-				scale: coords.h*(coords.w/coords.h) / 75*(coords.w/coords.h)
-			})
-			.css('width', width)
-			.prependTo('.carouselInner:eq('+carouselIndex+')');
+			isImage: Session.get('heightRatio') != 1,
+			heightRatio: Session.get('heightRatio'),
 			
-		//make ... elipsis tick in image just prepended
-		var interval = this.setLoadingAnimation($tmpDiv);
+			left: screenCropper.phantomPageConfig.clipRect.left,
+		    top: screenCropper.phantomPageConfig.clipRect.top,
 		
-		//refresh carousel to properly contain the new increased width
-		carousels[carouselIndex].refresh();
-		
-		return interval;
-	},
-	displayTempIframeOnDesk: function() {
-		Session.set('new_iframe_src',  {url: $('#iframeScroll iframe').attr('src'), imageName: this.imageNameNOpng});				
-		Session.set('cube_flip_direction', 'down');
-		Session.set('side', 'graph_paper');
-	},
-	
-	
-	//update temp content with real cropped image
-	replaceCroppedIframeWithActualImage: function(imgSrc, imageNameNOpng) {
-		$('#iframeHolder_'+imageNameNOpng).replaceWith('<img class="draggable" src="'+imgSrc+'" id="'+imageNameNOpng+'" />');
-	},
-	addCroppedImageToCarousel: function(imgSrc, imageNameNOpng, interval) {
-		var _this = this,
-		
-		    //create new image of cropped iframe portion
-		    $img = $('<img />', {
-		    	src: imgSrc,
-		    	id: 'carousel_'+imageNameNOpng
-		    }),
-		
-
-		    $tmpDiv = $('#temp_loading_'+imageNameNOpng),
-		    imageWidth = $tmpDiv.attr('imageWidth'),
-		    imageHeight = $tmpDiv.attr('imageHeight'),
-		    scale = $tmpDiv.attr('scale');
-		    
-		//replace temp loading div with new actual image
-		$img.attr('imageWidth', imageWidth).attr('imageHeight', imageHeight).attr('scale', scale);
-		$tmpDiv.replaceWith($img);	
-					
-		//when image is loaded, refresh the corresponding carousel
-		$('#'+imageNameNOpng).imagesLoaded(function() {
-			carousels[_this.carouselIndex].refresh();
-		});
-		
-		clearInterval(interval);
-		
-		return $img;	
-	},
-	prepareCarouselImageForDragging: function($img) {
-		$img.bind(START_EV, function() {
-			var $newImg = $(this).clone(),
-				newId = 'cloned_'+$newImg.attr('id'),
-				left = $(this).offset().left + 1,
-				top = $(this).offset().top + 1;
-				
-			$newImg.attr('id', newId).css({
-				position: 'absolute',
-				height: $(this).css('height'),
-				width: $(this).css('width'),
-				zIndex: 999999
-			})
-			.hardwareCss('translate3d('+left+'px,'+top+'px,0px)')
-			.prependTo('body');
+			width: screenCropper.phantomPageConfig.clipRect.width,
+		    height: screenCropper.phantomPageConfig.clipRect.height,
 			
-			new Draggable('#'+newId, 'body');			
-		});
+			viewport_width: screenCropper.phantomPageConfig.viewportSize.width,
+		    viewport_height: screenCropper.phantomPageConfig.viewportSize.height,
+		
+			user_agent: screenCropper.phantomPageConfig.settings.userAgent
+		});	
 	},
-	
-	
-	//kinda unrelated task compared to the rest of em -- add custom scrollbars
-	prepareIframeScrollbars: function() {
-		var iframeSrc = Session.get('iframeSrc');
-		
-		screenCropper.preloadUrlAndHeight(iframeSrc, function(iframeHeight) {
-			
-			//set height of iframe to correct height as received from phantomjs on the server, and apply scroll
-			$('#iframeScroll iframe').css('height', iframeHeight);
-			var iframeScroll = new IframeScroll(iframeHeight);
-
-			//this is crummy, but we dont know how long we need the scrollbar, 
-			//so when the iframe is gone, we kill it
-			var interval = setInterval(function() {
-				if($('#iframeScroll iframe').length == 0) {
-					console.log('iframe destroyed');
-
-					iframeScroll.tearDown();
-					clearInterval(interval);
-				}
-			}, 500);
-		});
-	},
-	
-	
-	//utilities
-	currentCarouselIndex: function() {
-		return $('.searchTab').index($('.searchTab.active')); //0 = webpages, 1 = images, etc
-	},
-	setLoadingAnimation: function($tmpDiv) {
-		var i=0;
-		
-		//make it Say Loading. Loading.. Loading... in repeat
-		var interval = setInterval(function() {
-			var j = i % 3;
-		
-			switch(j) {
-				case 0:
-					$tmpDiv.html('loading.&nbsp;&nbsp;');
-					break;
-				case 1:
-					$tmpDiv.html('loading..&nbsp;');
-					break;
-				case 2:
-					$tmpDiv.html('loading...');
-					break;
-			}
-			
-			i++;
-		}, 300);
-		
-		return interval;
+	updateSlide: function(imgSrc) {
+		Slides.update({id: this.imageNameNOpng}, {$set: {src: imgSrc}});
 	}
 });
 

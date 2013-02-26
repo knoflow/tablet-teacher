@@ -32,7 +32,7 @@ var HCube = ParentCube.extend({
 					return 'back';
 				case 'back':
 					return 'left';
-				case 'left':
+				default:// 'left':
 					return 'front';
 			}
 		}
@@ -44,7 +44,7 @@ var HCube = ParentCube.extend({
 					return 'back';
 				case 'back':
 					return 'right';
-				case 'right':
+				default:// 'right':
 					return 'front';
 			}
 		}
