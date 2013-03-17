@@ -54,7 +54,9 @@ Template.scroll_search_images.rendered = function() {
 
 
 Template.search_result_webpage.rendered = function() {
-	$('.textResultsBox .arrow').bind(END_EV, function() {	
+	$('.textResultsBox .arrow').bind(END_EV, function() {
+		Session.set('isImage', false);
+			
 		Session.set('iframeSrc', $(this).parent().find('h2').text());
 		
 		Session.set('cube_flip_direction', 'left');

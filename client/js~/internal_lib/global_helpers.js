@@ -16,3 +16,8 @@ function slideType() {
 	return current_content_type();
 }
 
+
+function getUTCtime() {
+	var d = new Date();
+	return d.getTime() + d.getTimezoneOffset()*60*1000;
+}

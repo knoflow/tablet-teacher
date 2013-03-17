@@ -32,49 +32,51 @@
 <template name="selected_content">
 	<div id="selectedContentContainer">
 		<div class="selectedContent">
-			{{#if side 'loading'}}
-		    	{{> loading}}		
-			{{/if}}
 			
+			{{#if side 'loading'}}
+				{{> loading}}		
+			{{/if}}
+
 			{{#if side 'graph_paper'}}
 		    	{{> graph_paper}}
 			{{/if}}
-			
+
 			{{#if side 'iframe'}}
 		    	{{> iframe}}		
 			{{/if}}
-	
+
 			{{#if side 'search_start_webpages'}}
 				{{> search_start_webpages}}  
 			{{/if}}
-			
+
 			{{#if side 'search_start_images'}}
 				{{> search_start_images}}  
 			{{/if}}
-			
+
 			{{#if side 'search_start_videos'}}
 				{{> search_start_videos}}  
 			{{/if}}
-			
+
 			{{#if side 'search_start_quizzes'}}
 				{{> search_start_quizzes}}  
 			{{/if}}
-			
+
 			{{#if side 'search_webpages'}}
 				{{> search_webpages}}  
 			{{/if}}
-		
+
 			{{#if side 'search_images'}}
 				{{> search_images}}  
 			{{/if}}
-		
+
 			{{#if side 'search_videos'}}
 				{{> search_videos}}  
 			{{/if}}
-		
+
 			{{#if side 'search_quizzes'}}
 				{{> search_quizzes}}  
 			{{/if}}
+
 			
 			{{trueRendered}}
 		</div><!-- END SELECTED CONTENT -->
@@ -100,13 +102,7 @@
 <template name="iframe">
 	<div class="backx"></div>
 	<div id="iframeScroll">
-		<div class="iframeInner">
-			{{#if isImage}}
-				<img class="siteIframe" src="{{origSrc}}" onerror="this.src = '{{imgSrc}}';" onload="iframeCropper.prepareNewIframe();  console.log('img loaded'); var newHeight = $(window).height() - 144; Session.set('heightRatio', newHeight/$(this).height()); $(this).css('height', newHeight); imageMarginLeft();" />
-			{{else}}
-				<iframe class="siteIframe" scrolling='no' src="{{src}}" onload="Session.set('heightRatio', 1);" ></iframe>
-			{{/if}}
-        </div>
+		<div class="iframeInner"></div>
 	</div>
 </template>
 

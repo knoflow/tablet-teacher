@@ -13,6 +13,7 @@
     invited: Array of user id's that are invited (only if !public)
     rsvps: Array of objects like {user: userId, rsvp: "yes"} (or "no"/"maybe")
 */
+Rooms = new Meteor.Collection('rooms');
 Desks = new Meteor.Collection('desks');
 Slides = new Meteor.Collection('slides');
 LiveSlides = new Meteor.Collection('liveSlides');

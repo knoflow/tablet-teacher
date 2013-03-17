@@ -23,7 +23,9 @@ jQuery.fn.hardwareAnimate = function(endProperties, dontAdd, duration, easing, c
 		dontAdd = dontAdd || {},
 		duration = duration == undefined ? 1000 : duration,
 		easing = easing || 'easeOutExpo',
-		callback = callback || function() {console.log('animation complete');};
+		callback = callback || function() {
+			console.log('animation complete');
+		};
 	
 	if(cueName) {
 		$.globalAnimationCue[cueName] = $.globalAnimationCue[cueName] || [];
@@ -72,7 +74,7 @@ jQuery.fn.hardwareAnimate = function(endProperties, dontAdd, duration, easing, c
 				if(isComplete) element.startProperties[prop] = value;
 			}
 		}
-		console.log(transform);
+
 		return transform;
 	}
 	

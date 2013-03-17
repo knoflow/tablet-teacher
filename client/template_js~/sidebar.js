@@ -62,3 +62,26 @@ Template.action_button.rendered = function() {
 	}
 	console.log('action_button rendered');
 };
+
+Template.user_desk.rendered = function() {
+	
+};
+
+Template.user_desk.active = function() {
+	return Session.equals('current_desk_id', this._id) ? 'active' : '';
+}
+
+Template.user_desk.events({
+	'click .desk': function(e) {
+		Session.set('cube_flip_direction', 'down');
+		Session.set('side', 'loading');
+		
+		Rooms.update(Session.get('current_room_id'), {$set: {current_desk_id: this._id}});
+		
+		setTimeout(function() {
+			Session.set('side', 'graph_paper');
+		}.bind(this), 1200);
+		
+		console.log('CURRENT_DESK_ID', Session.get('current_desk_id'));
+	}
+});

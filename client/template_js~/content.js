@@ -15,7 +15,9 @@ Template.selected_content.trueRendered = function() {
 		}
 		
 		Cube.rotate(Session.get('cube_flip_direction'), '.selectedContent', function(callback) {
-			var side = Session.get('side');			
+			var side = Session.get('side');		
+			
+			//this is some nasty (but useful) stuff to call fake 'trueRendered' callbacks on selected_content the first time its rendered	
 			if(Template[side] && Template[side].trueRendered) return Template[side].trueRendered(callback);
 			return callback();
 		});
@@ -23,13 +25,15 @@ Template.selected_content.trueRendered = function() {
 	}, 0);	
 };
 
+
 Template.selected_content.rendered = function() {
 	console.log('selected_content rendered');
 }
 
 Template.draggables.slides = function() {
-	return LiveSlides.find();
+	return LiveSlides.find({desk_id: Session.get('current_child_desk_id')});
 };
+
 
 Template.graph_paper.trueRendered = function(callback) {
 	contentKeys.is_searching = false;

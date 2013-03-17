@@ -55,25 +55,24 @@ ScreenCropper = Class.extend({
 			path = parts || [''],
 			imageName = host.split('.').reverse().join('_')+'-'+path.join('-').replace('.', '_');			
 		
-		if(imageName.substr(-1) == '-') imageName = imageName.substr(0, imageName.length - 1);
+		if(imageName.substr(-1) == '-' || imageName.substr(-1) == '_') imageName = imageName.substr(0, imageName.length - 1);
 		
-		imageName = imageName.replace('(', '').replace(')', '').replace(':', '').replace('?', '').replace('=', '').replace('~','').replace('.', '_');
-		
+		imageName = imageName.replace(/\(|\)|:|\?|\+|=|~|\./g, '_');
+	    
 		return imageName;
 	},
 	createImageName: function() {
 		var imageName = this.createUrlKey(),
 			config = this.phantomPageConfig;
-		
-		console.log('imageName', imageName);
-					
+				
 		imageName += '-' + config.clipRect.top + '-' + config.clipRect.left + '-' + config.clipRect.width + '-' + config.clipRect.height + '-';
 		imageName += config.viewportSize.width + '-' + config.viewportSize.height + '-'; 
 		imageName += config.scrollPosition.top + '-' + config.scrollPosition.left;
+		
+		imageName = imageName.replace(/\(|\)|:|\?|\+|=|~|\./g, '_');
+		
 		imageName += '.png';
 
-		console.log(imageName);
-		
 		return this.imageName = imageName;
 	},
 	imageNameNOpng: function() {

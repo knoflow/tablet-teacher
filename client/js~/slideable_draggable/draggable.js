@@ -39,22 +39,67 @@ Draggable = Class.extend({
 	/**
 	SETUP METHODS
 	**/
-	init: function(element, stage, originalID, e) {
+	init: function(slide) {
 		for(prop in this.defaults) this[prop] = this.defaults[prop];
 		
-		this.originalID = originalID;
-		this.setupStage(stage);
-		this.setupElement(element);
+		this.slide = slide;
+		$('#'+this.slide.old_id).remove(); //remove the original pre-collection liveSlide;
+		this.setupElement('#'+slide.id);
+	
+        if(slide.event) { //we automatically initiate the start event when Draggable is cloned from Slideable, which was actually clicked
+			this.$stage = this.$stageContainer = $('body');
+			this.start(this.positionX(slide.event), this.positionY(slide.event));
+			
+			this.beforeAddedToThisDesk();
+		}
+		else { //Draggable is already on the desk because its collection rendered it there
+			this.$stage = $('.mainDeskInner');
+		    this.$stageContainer = $('#contentContainer');
 		
-		this.$stageContainer = $('body');
-        if(e) this.start(this.positionX(e), this.positionY(e));
+			this.updateDeskPosition();
+		}
+		
+		
 	},
-	setupStage: function(stage) {
-		this.$stage = $(stage);
-
+	updateDeskPosition: function() {
+		//reAnimate before and after being added to this desk and desks of others
+		if(this.slide.owner_desk_id == Session.get('desk_id')) {
+			this.afterAddedToThisDesk();
+		}
+		else {
+			if(!this.addedToDesk()) this.beforeAddedToOtherDesk();
+			else this.afterAddedToOtherDesk();
+		}
+	},
+	updateDeskPositionOLD: function() {
+		//reAnimate before and after being added to this desk and desks of others
+		if(this.slide.owner_desk_id == Session.get('desk_id')) {
+			if(!this.addedToDesk()) this.beforeAddedToThisDesk();
+			else this.afterAddedToThisDesk();
+		}
+		else {
+			if(!this.addedToDesk()) this.beforeAddedToOtherDesk();
+			else this.afterAddedToOtherDesk();
+		}
+	},
+	beforeAddedToThisDesk: function() {
+		console.log('### beforeAddedToThisDesk ### '+this.slide._id);
+		//insert
+	},
+	afterAddedToThisDesk: function() {
+		console.log('### afterAddedToThisDesk ### '+this.slide._id);
+		//update
+	},
+	beforeAddedToOtherDesk: function() {
+		console.log('### beforeAddedToOtherDesk ### '+this.slide._id);
+		this.placeInCorner();
+		this.reAnimate();
+	},
+	afterAddedToOtherDesk: function() {
+		console.log('### afterAddedToOtherDesk ### '+this.slide._id);
+		//exact movement matching
 	},
 	setupElement: function(element) {
-
 		this.element = element;
 		$(this.element).css('z-index', 999999);
 		
@@ -168,7 +213,7 @@ Draggable = Class.extend({
 	CORE WORK METHODS
 	**/
 	start: function(x, y) {
-	    console.log('start');
+	    console.log('start', this);
 	    this.mouseDownTime = Date.now();
 	    this.bringToFront();
 	    
@@ -232,12 +277,13 @@ Draggable = Class.extend({
 			this.vy = this.velocityY();
 			
 			//make elements first launched off carousel go extra fast
-			if(!this.addedToDesk) {
-			    this.vy = Math.max(3, Math.abs(this.vy)) * -1;
+			if(!this.addedToDesk()) {
+			    this.vy = Math.max(1.6, Math.abs(this.vy)) * -1;
 			    console.log(this.vx, this.vy);
 			}
 
 			//setup for future gesture
+			this.previousMouseDownTime = this.mouseDownTime; //record for tracking duration from final movement pivot to release animation end
 			this.mouseDownTime = null; 
 			this.dirX = null;
 			this.dirY = null;
@@ -246,9 +292,9 @@ Draggable = Class.extend({
 	        this.startAnimationTime = Date.now();
 	        
 	        if(Date.now() - this.lastMoveTime < 200) {//make sure the user didn't manually stop the element
-	            this.animate();
+	            this.animate(); //animate the release momentum
 	        }
-	        else this.prepareAddToDesk();
+	        else this.addToDesk();
 
 	    }
 	},
@@ -258,11 +304,12 @@ Draggable = Class.extend({
 			dy = 600 * (50/this.height()) * this.vy * acc,
 			x = this.x + dx,
 			y = this.y + dy;
-		
+
 		//reverse direction if necessary, while applying bounce of -0.75 to slow it down
 		x = this.bounceOffWallsX(x);
 		y = this.bounceOffWallsY(y);	
 
+		
 		this.updateCss(x, y);
 	},
 	
@@ -283,42 +330,72 @@ Draggable = Class.extend({
 			
 	        this.render(time);
 	    }
-	    else this.prepareAddToDesk();
+	    else this.addToDesk();
 
 	},
-	prepareAddToDesk: function() {
-	    if(!this.addedToDesk) {
-            this.addedToDesk = true; //only do this task once, i.e. the first time dragged from the carousel
-
-            setTimeout(function() {
-                this.addToDesk();
-            }.bind(this), 0);    
-        }
+	addedToDesk: function() {
+	    //console.log('this.slide.addedToDesk', this.slide.addedToDesk, 'this.slide.old', this.slide.old)
+		return this.slide.addedToDesk && this.onDesk || this.slide.old;
 	},
 	addToDesk: function() {
-		//adjust the x/y coordinates so the element appears at the same position but on the desk
-	    var _this = this,
-			x = ($(this.element).offset().left - $('.mainDeskInner').offset().left) * (1/this.deskScale()),
-	        y = ($(this.element).offset().top - $('.mainDeskInner').offset().top)  * (1/this.deskScale());
-	     
-	
-  	 	var slide = Slides.findOne({src: $(_this.element).attr('src')});
+		this.buildPivotsArray(this.x, this.y, this.previousMouseDownTime);
 		
+		this.onDesk = true;
+		
+		setTimeout(function() {		
+			if(!this.addedToDesk()) {
+				this.insertSlide();
+                this.showCarouselSlide(); //display the original slide in the carousel again
+        	}
+			else this.updateSlide();
+		}.bind(this), 0);
+	},
+	insertSlide: function() {	
 		//make element normal size again since zoomed desk is now in charge of its size
-		slide.width = $(_this.element).width() * 1/_this.deskScale();
-		slide.height = $(_this.element).height() * 1/_this.deskScale();
-		slide.transform = prefixCSSstyle('transform', _this.getNewCss(x, y));
-		slide.zIndex = 1000;
-		slide.id = $(_this.element).attr('id');
-		delete slide._id;
-		
-		$(this.element).remove();		
-		LiveSlides.insert(slide);
+		this.slide.width = $(this.element).width() * 1/this.deskScale();
+		this.slide.height = $(this.element).height() * 1/this.deskScale();
 
-	     this.$stage = $('.mainDeskInner');
-	     this.$stageContainer = $('#contentContainer');
-   
-         this.scrollToFront();         
+		//adjust the x/y coordinates so the element appears at the same position but on the desk
+		this.slide.transform = prefixCSSstyle('transform', this.getNewCss(this.getScaledX(), this.getScaledY()));
+
+		this.slide.vx = this.vx;
+		this.slide.vy = this.vy;
+		
+		this.slide.bottomLinePercentX = this.bottomLinePercentX;
+		this.slide.addedToDesk = true;
+		
+		this.slide.pivots = this.pivots;
+		//this.pivots.length = 0;
+
+		//console.log('pivots', this.pivots, 'length', this.slide.pivots.length);
+		
+		this.slide.desk_id = Session.get('current_desk_id'); //insert into currently selected Abstract desk
+		this.slide.owner_desk_id = Session.get('desk_id'); //mark the owner as the current user
+		this.slide.old_id = this.slide.id;
+		
+		delete this.slide._id;
+		delete this.slide.event;
+	
+		console.log('ABOUT TO INSERT SLIDE', this.slide.owner_desk_id, this.slide.old, this.slide.addedToDesk, this.slide);
+		LiveSlides.insert(this.slide); //collection-driven draggable will now appear on the desk
+		
+		//reset slide properties for slideable to properly morph into next draggable
+		//this.slide.addedToDesk = false;
+		//this.slide.onDesk = false;
+	},
+	updateSlide: function() {
+	    console.log("UPDATING SLIDE");
+		LiveSlides.update(this.slide._id, {$set: {
+				old: true,
+				transform: prefixCSSstyle('transform', this.getNewCss(this.getScaledX(), this.getScaledY()))
+			}
+		});
+	},
+	getScaledX: function() {
+		return ($(this.element).offset().left - $('.mainDeskInner').offset().left) * (1/this.deskScale());
+	},
+	getScaledY: function() {
+		return ($(this.element).offset().top - $('.mainDeskInner').offset().top)  * (1/this.deskScale());
 	},
 	bringToFront: function() {
 	    var highestZindex = 0,
@@ -335,17 +412,21 @@ Draggable = Class.extend({
         
         $(this.element).css('z-index', ++highestZindex);  
 	},
-	scrollToFront: function() {
-	    //carousels[0].scrollTo(0,0,200);
-	    
-	    $('#'+this.originalID).show();
+	showCarouselSlide: function() {
+	    $('#'+this.originalID()).show(); 
+	
 		setTimeout(function() {
 		    carousels[slideTypeIndex()].refresh();    
 		}.bind(this), 0);   
 	},
+	originalID: function() {
+		//get the original slide element in the carousel by id, by removing: 'cloned_[1234567]_old_id___'
+		var id = this.slide.id;
+		return id.substr(id.indexOf('_old_id___')+10);
+	},
 	deskScale: function() {
-	    if(!this.addedToDesk) return 1;
-	    return this.mainDesk().scale;    
+	    if(!this.addedToDesk()) return 1;
+	    return this.mainDesk() && this.mainDesk().scale || 1;    
 	},
 	mainDesk: function() {
 		return mainDesk;
@@ -368,7 +449,6 @@ Draggable = Class.extend({
 	height: function() {
 	    return $(this.element).height();
 	},
-
 	acceleration: function() {
 		return acceleration.apply(this, arguments);
 	},
@@ -447,12 +527,14 @@ Draggable = Class.extend({
 		if (x > this.widthMax()) {
 		     var xOutaBoundsRight = x - this.widthMax();
 		     x = this.widthMax() - (this.bounce * xOutaBoundsRight); //make x equal to widthLimit - the amount its outa bounds (times the bounce coefficient)
-		     return this.bounceOffWallsX(x); //recursively call this function again to make sure the object doesn't hit the opposite wall
+
+			return this.bounceOffWallsX(x); //recursively call this function again to make sure the object doesn't hit the opposite wall
 		}    
   
 		if (x < this.widthMin()) {
 		     var xOutaBoundsLeft = this.widthMin() - x;
 		     x = this.widthMin() + (this.bounce * xOutaBoundsLeft);
+
 		     return this.bounceOffWallsX(x);   
 		}
 		
@@ -462,20 +544,28 @@ Draggable = Class.extend({
 		if (y > this.heightMax()) {
 		     var yOutaBoundsBottom = y - this.heightMax();
 		     y =  this.heightMax() - (this.bounce * yOutaBoundsBottom); //make y equal to heightLimit - the amount its outa bounds (times the bounce coefficient)
-		     return this.bounceOffWallsY(y); //recursively call this function again to make sure the object doesn't hit the opposite wall
+
+			return this.bounceOffWallsY(y); //recursively call this function again to make sure the object doesn't hit the opposite wall
 		}    
 		
 
 		if (y < this.heightMin()) {
 		     var yOutaBoundsTop = this.heightMin() - y;
 		     y = this.heightMin() + (this.bounce * yOutaBoundsTop);
+
 		     return this.bounceOffWallsY(y);   
 		}
 		
 		return y;		
 	},
-	widthMax: function() {
-        if(!this.addedToDesk) {
+	widthMax: function() {	
+		if(this.beingReAnimated) {
+			var widthMax = this.$stageContainer.width() - this.$stage.offset().left + this.$stageContainer.offset().left;
+	        widthMax *= 1/this.deskScale();
+	        widthMax -= this.width(); 
+	        return widthMax;
+		}
+        else if(!this.addedToDesk()) {
 	        var widthMax = this.$stageContainer.width() - this.$stage.offset().left + this.$stageContainer.offset().left;
 	        widthMax *= 1/this.deskScale();
 	        widthMax -= this.width(); 
@@ -489,14 +579,22 @@ Draggable = Class.extend({
 	    }
 	},
 	widthMin: function() {
-	    if(!this.addedToDesk) return 193;
+	    if(this.beingReAnimated) {
+			//bounce off $stageContainer while attached to desk
+			return (this.$stageContainer.offset().left - this.$stage.offset().left)*1/this.deskScale();
+		}
+        else if(!this.addedToDesk()) return 193;
+
 	    return 0 + (this.widthRotated()/2 - this.width()/2); //cos/sign style + regular width
-	    
-	    //deprecated bounce off $stageContainer, except for before attachment to desk
-	    return (this.$stageContainer.offset().left - this.$stage.offset().left)*1/this.deskScale();
 	},
 	heightMax: function() {
-	    if(!this.addedToDesk) {
+	    if(this.beingReAnimated) {
+			var heightMax = this.$stageContainer.height() - this.$stage.offset().top + this.$stageContainer.offset().top;
+	        heightMax *= 1/this.deskScale();
+	        heightMax -= this.height();
+	        return heightMax;
+		}
+        else if(!this.addedToDesk()) {
 	        var heightMax = this.$stageContainer.height() - this.$stage.offset().top + this.$stageContainer.offset().top;
 	        heightMax *= 1/this.deskScale();
 	        heightMax -= this.height();
@@ -510,17 +608,21 @@ Draggable = Class.extend({
 	    }
 	},
 	heightMin: function() {
-	    if(!this.addedToDesk) return 46;
-	    return 0 + (this.heightRotated()/2 - this.height()/2); //cos/sign style + regular width
+	    if(this.beingReAnimated) {
+			 //bounce off $stageContainer while attached to desk
+			 return (this.$stageContainer.offset().top - this.$stage.offset().top)*1/this.deskScale();
+		}
+        else if(!this.addedToDesk()) return 46;
 	    
-	    //deprecated bounce off $stageContainer, except for before attachment to desk
-	    return (this.$stageContainer.offset().top - this.$stage.offset().top)*1/this.deskScale();
+		return 0 + (this.heightRotated()/2 - this.height()/2); //cos/sign style + regular width
 	},
 	setCrossedBottomLine: function(y) {
 	    //this is the point where the element has been dragged fully out of the carousel
 	    if(y < this.stageHeight() - this.height() - 96) {
 	        this.bottomLine = 96; 
 
+			this.bottomLinePercentX = this.bottomLinePercentX || (this.x - 193)/(this.$stageContainer.width() - 203); //mark this for usage in reAnimation on other screens, so they start from correct x coordinate
+			
 	        carousels[slideTypeIndex()].refresh();    
 	    }    
 	},
@@ -564,10 +666,49 @@ Draggable = Class.extend({
         if(newPivot) this.buildPivotsArray(this.x, this.y, this.mouseDownTime);
 	},
 	buildPivotsArray: function(x, y, mouseDownTime) {
-
+		console.log(x, y, mouseDownTime);
+		
         setTimeout(function() {
-            var pivot = {time: Date.now() - mouseDownTime, x: x, y: y};
-            this.pivots.push(pivot);  
+            var pivot = {duration: Date.now() - mouseDownTime, x: x, y: y};
+            this.pivots.push(pivot); 
         }.bind(this), 0);
+	},
+	reAnimateOld: function() {
+		var timeElapsed = 0;
+		console.log('PIVOTS', this.slide.pivots);
+		$.each(this.slide.pivots, function(k, v) {
+			var duration = v.duration - timeElapsed; //get just the milliseconds since last time elapsed tracked
+
+			console.log(v, duration);
+			 
+			$(this.element).hardwareAnimate({translateX: v.x, translateY: v.y}, {translateX: true, translateY: true}, duration, 'swing');
+	
+			timeElapsed += v.duration;
+
+		}.bind(this));
+	},
+	placeInCorner: function() {
+		this.vx = this.slide.vx;
+		this.vy = this.slide.vy;	
+		
+		this.x = this.slide.bottomLinePercentX * this.$stageContainer.width();
+		this.y = this.$stageContainer.height() - 95 + -1 * (this.$stage.offset().top - 46);
+		
+		this.startAnimationTime = Date.now();
+		this.beingReAnimated = true;
+	},
+	reAnimate: function() {
+		var time = Date.now() - this.startAnimationTime;
+		
+	    if(time < this.duration) {
+
+	        nextFrame(function() {
+				this.reAnimate();
+			}.bind(this));
+			
+	        this.render(time);
+	    }
+		else this.beingReAnimated = false;
+
 	}
 });

@@ -1,15 +1,22 @@
-Meteor.publish('desks', function () {
-    return Desks.find();
+Meteor.publish('room', function(id) {
+	return Rooms.find(id);
 });
 
-Meteor.publish('slides', function () {
-    return Slides.find();
+Meteor.publish('slides', function (room_id, type) {
+    return Slides.find({room_id: room_id, type: type});
 });
 
-Meteor.publish('liveSlides', function () {
-    return LiveSlides.find();
+Meteor.publish('desks', function (room_id) {
+    return Desks.find({room_id: room_id});
 });
 
+
+Meteor.publish('liveSlides', function (desk_id) {
+    return LiveSlides.find({desk_id: desk_id});
+});
+Meteor.publish('concreteChildDeskSlides', function (desk_id) {
+    return LiveSlides.find({desk_id: desk_id});
+});
 
 Meteor.methods({
 	keepalive: function (desk_id) {

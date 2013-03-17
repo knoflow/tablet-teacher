@@ -44,6 +44,7 @@ IframeCropper = Class.extend({
 	addSlide: function(coords) {
 		Slides.insert({
 			id: this.imageNameNOpng,
+			room_id: Session.get('current_room_id'),
 			url: $('.siteIframe').attr('src'),
 			time: Date.now(),
 			type: slideType(),

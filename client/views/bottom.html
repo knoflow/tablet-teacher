@@ -87,7 +87,7 @@
 	{{else}}
 		<div id="{{id}}" class="iframe_holder_draggable" style="width:{{width}}px; height: {{height}}px; z-index:{{zIndex}}; {{transform}}">
 			<div class="iframe_cover"></div>
-			<iframe class="iframe_slide" src="{{url}}" scrolling="no" style="left:-{{left}}px; top:-{{top}}px; width:{{viewport_width}}px; height:{{viewport_height}}px;"></iframe>
+			<iframe class="iframe_slide" src="{{url}}" scrolling="no" style="left:-{{left}}px; top:-{{top}}px; width:{{adjusted_width}}px; height:{{adjusted_height}}px; {{scale_transform}}"></iframe>
 		</div>
 	{{/if}}
 </template>

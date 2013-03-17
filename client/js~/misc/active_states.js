@@ -75,6 +75,7 @@ DeskTabs = Class.extend({
 });
 
 
+
 ActionButton = Class.extend({
 	init: function() {
 		var _this = this;
@@ -183,15 +184,19 @@ ContentKeys = Class.extend({
 		switch(index) {
 			case 0:
 				degrees = 0;
+				Session.set('current_type', 'webpages');
 				break;
 			case 1: 
 				degrees = -90;
+				Session.set('current_type', 'images');
 				break;
 			case 2:
 				degrees = -180;
+				Session.set('current_type', 'videos');
 				break;
 			case 3:
 				degrees = -270;
+				Session.set('current_type', 'quizzes');
 				break;
 		}
 		$('#carousel_cube .content_cube').hardwareAnimate({translateZ: -42, rotateX: degrees}, {rotateX: true}, 600, 'easeOutBack');

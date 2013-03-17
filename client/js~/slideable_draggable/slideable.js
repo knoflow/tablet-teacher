@@ -8,14 +8,15 @@ Slideable = Class.extend({
 		this.$element = $('#'+slide.id);
 		this.slide = slide;
 		
+		console.log('THIS IS SLIDEABLE!!!!', this.slide);
+		
 		this.bindStart();
-		console.log(this.$element);
 	},
 	bindStart: function() {
 		var _this = this;
 
 		this.$element.bind(START_EV, function(e) {
-console.log(123);
+
 	        _this.lastX = getPageX(e);
 	        _this.lastY = getPageY(e);
 	        _this.mouseDown = true;
@@ -60,26 +61,34 @@ console.log(123);
 	},
 	setupDraggable: function(e) {
 	
-        var new_id = 'cloned_'+Date.now()+'_'+this.slide.id,
+        var new_id = 'cloned_'+Date.now()+'_old_id___'+this.slide.id,
 			left = this.$element.offset().left + 1,
 		    top = this.$element.offset().top + 1,
-			transform = prefixCSSstyle('transform', 'translate3d('+left+'px,'+top+'px,0px)');
-		
-
-			var slide = Slides.findOne({_id: this.slide._id});
-			slide.id = new_id;
-			slide.zIndex = 1000;
-			slide.transform = prefixCSSstyle('transform', 'translate3d('+left+'px,'+top+'px,0px)');
+			transform = prefixCSSstyle('transform', 'translate3d('+left+'px,'+top+'px,0px)'),
+			self = this,
+			newDraggable = $.extend({}, self.slide),
+			draggable;
 			
-			draggable = Meteor.render(function() {
-				return Template.draggable(slide);
-			});
+		newDraggable.id = new_id;
+		newDraggable.zIndex = 1000;
+		newDraggable.transform = transform;
+		newDraggable.event = e.originalEvent;
 		
+		draggable = Meteor.render(function() {
+			return Template.draggable(newDraggable);
+		});
+	
 		$('body').prepend(draggable);
-
-        this.$element.hide().appendTo('.carouselInner');
-        carousels[slideTypeIndex()].refresh();
-				
-		new Draggable('#'+new_id, 'body', this.slide.id, e.originalEvent);    
+		//console.log('NEW DRAGGABLE from slideable', this.slide.owner_desk_id, this.slide.old, this.slide.addedToDesk, this.slide);
+		//new Draggable(this.slide, e.originalEvent); //pass this.slide so draggable can utilize its info for its placement, etc
+		
+		//hide original slideable element until new draggable sticks in place, and refresh carousel
+        this.$element.hide();
+		setTimeout(function() {
+			this.$element.show();
+			carousels[slideTypeIndex()].refresh();
+		}.bind(this), 1000);
+		
+        carousels[slideTypeIndex()].refresh();		   
     }
 });
